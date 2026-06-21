@@ -14,7 +14,7 @@ Run a parallel multi-lens code review of the current branch's diff vs. trunk.
 Argument parsing is handled by the orchestrator skill (Step 0), not here. Recognized tokens:
 
 - **`--deep` flag** (optional) — if present, lens subagents use Opus instead of Sonnet.
-- **`base=<ref>` token** (optional) — explicit base ref for the diff (default: `origin/develop`).
+- **`base=<ref>` token** (optional) — explicit base ref for the diff (default: `origin/main`).
 - **`adapter=<name>` token** (optional) — output adapter. Default: `local` (markdown to terminal). For now, only `local` is supported.
 
 **Scope is fixed:** every run reviews committed changes + working-tree mods (staged + unstaged) + untracked, non-gitignored files. Binaries are filtered. Files under hidden directories (any path segment starting with `.`, e.g. `.claude/`, `.aa-review/`, `.github/`) are filtered too — they inform the reviewer as context but are not themselves review targets. Top-level dot-files (e.g. `.gitignore`, `.editorconfig`) remain in scope. This matches "what's on your branch right now" — the natural local-reviewer model. There is no flag to narrow the scope; if you want to exclude uncommitted work, commit or stash it before running.

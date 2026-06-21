@@ -20,7 +20,7 @@ Because the install is symlinks, **edits to files in this repo go live in any ac
 1. `commands/aa-review.md` (~25-line thin slash command) parses args and invokes the **`aa-review-orchestrator` skill** via the Skill tool. Default `adapter=local` if not specified.
 2. The skill runs at the **TOP LEVEL** of the user's session (not as a subagent). This is what makes the architecture work — only top-level contexts have access to the `Agent` tool, which is required to dispatch lens subagents in parallel. (An agent-via-Task indirection would fail because subagents cannot spawn other subagents per Claude Code's runtime.)
 3. The skill executes Steps 0–7: reads target repo's `CLAUDE.md`, `.claude/context.md`, `.aa-review/rules.md` (the last is repo-specific rules layered on top of base standards).
-4. Resolves base ref (explicit `base=<ref>` → upstream → `origin/HEAD` → `develop`/`main`/`master` fallbacks), computes merge-base, pre-reads every changed file ONCE.
+4. Resolves base ref (explicit `base=<ref>` → upstream → `origin/HEAD` → `main`/`develop`/`master` fallbacks), computes merge-base, pre-reads every changed file ONCE.
 5. Launches the 6 lenses (Correctness / Security / Reliability / Design / Perf+Testing / Readability) in a **single Agent message** for parallel execution. Pre-read content is injected into each lens prompt — lenses MUST NOT re-read or re-diff.
 6. Cross-checks pairs, dedupes, assigns `CRT-/IMP-/SUG-` IDs, applies `[CRITICAL]` rule promotion, emits the 3-layer report per the active adapter. Verdict is deterministic from highest severity.
 

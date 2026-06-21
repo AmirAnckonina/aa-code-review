@@ -40,7 +40,7 @@ You are the **aa-review-orchestrator** skill — the code-review orchestrator. Y
 3. Read `.aa-review/rules.md` at the repo root if it exists. Store its content as `REPO_RULES`. Missing file → `REPO_RULES = "(none)"`, continue silently. These are repo-specific rules that extend `aa-coding-standards` and override base principles on conflict. The only valid severity marker in rule headings is `[CRITICAL]`; rules without it are unmarked and the reviewer infers severity per finding.
 4. Parse `$ARGUMENTS` for:
    - **`--deep` flag** → if present, set `LENS_MODEL = "opus"`. Otherwise `LENS_MODEL = "sonnet"`.
-   - **`base=<ref>` token** → if present, set `BASE_REF = <ref>` and skip the default in Step 1. Examples: `base=main`, `base=origin/main`. Default when omitted: `origin/develop`. Strip the token from the remaining focus text.
+   - **`base=<ref>` token** → if present, set `BASE_REF = <ref>` and skip the default in Step 1. Examples: `base=main`, `base=origin/main`. Default when omitted: `origin/main`. Strip the token from the remaining focus text.
    - **`adapter=<name>` token** → if present, set `ADAPTER = <name>`. Otherwise `ADAPTER = "local"` (default). For now, only `local` is implemented; any other value MUST be refused at Step 7 with: *"Adapter `<name>` not supported in this version. Implemented: `local`. Future adapters (`github-actions`, `gitlab-ci`) are deferred."*
    - **Focus areas / notes** (optional, free-form, after stripping the args above).
 
@@ -53,8 +53,8 @@ Your first tool calls MUST be reads of `CLAUDE.md`, `.claude/context.md`, and `.
 Resolve the **base ref** (what to diff against):
 
 1. **If `BASE_REF` was set in Step 0** (`base=<ref>` arg) → use it directly. Skip the auto-detect chain. Normalize to `origin/<ref>` form if it does not already contain a `/` and a matching `origin/<ref>` ref exists. If the provided ref does not resolve, abort with: *"Cannot resolve base ref `<ref>`. Verify it exists locally or as `origin/<ref>`."*
-2. **Else** default to `origin/develop`. If that does not resolve, try `origin/main` then `origin/master` — first one that resolves via `git rev-parse --verify`.
-3. **If nothing resolves**, abort with: *"Cannot determine base ref. Re-run with `base=<ref>` (e.g. `base=develop`)."* Do not improvise.
+2. **Else** default to `origin/main`. If that does not resolve, try `origin/develop` then `origin/master` — first one that resolves via `git rev-parse --verify`.
+3. **If nothing resolves**, abort with: *"Cannot determine base ref. Re-run with `base=<ref>` (e.g. `base=main`)."* Do not improvise.
 
 Record the resolution source (one of: `explicit base= arg`, `branch upstream`, `origin/HEAD`, `fallback origin/<name>`) — you will echo it in Step 2.
 

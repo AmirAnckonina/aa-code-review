@@ -91,7 +91,7 @@ To refine later — *"the X rule is too strict"*, *"mark Y as critical"*:
 /aa-review [base=<ref>] [--deep] [adapter=<name>] [focus text]
 ```
 
-- `base=<ref>` — explicit base ref (default: `origin/develop`, falling back to `origin/main` / `origin/master`).
+- `base=<ref>` — explicit base ref (default: `origin/main`, falling back to `origin/develop` / `origin/master`).
 - `--deep` — run all 6 lens subagents on Opus instead of Sonnet.
 - `adapter=<name>` — output adapter (default and only implemented: `local`).
 - free-form text — focus areas / notes / a spec link.

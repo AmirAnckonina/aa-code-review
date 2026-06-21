@@ -65,7 +65,7 @@ Optional args:
 
 ```
 /aa-review --deep                              # Use Opus for all 6 lens subagents (default: Sonnet)
-/aa-review base=main                           # Override base ref (default: origin/develop)
+/aa-review base=main                           # Override base ref (default: origin/main)
 /aa-review adapter=local                       # Output adapter (default: local — only implemented one)
 /aa-review focus on the auth changes           # Free-form focus areas
 /aa-review --deep base=main focus on race conditions    # Combine
@@ -74,7 +74,7 @@ Optional args:
 The slash command invokes the **`aa-review-orchestrator`** skill (which runs at the top level of your session — that's what lets it dispatch 6 lens subagents in parallel via the `Agent` tool). The orchestrator:
 
 1. Reads `CLAUDE.md`, `.claude/context.md`, `.aa-review/rules.md` if present.
-2. Resolves trunk (`base=<ref>` → `origin/develop` default → `origin/main` / `origin/master` fallbacks).
+2. Resolves trunk (`base=<ref>` → `origin/main` default → `origin/develop` / `origin/master` fallbacks).
 3. Computes merge-base, runs `git diff $merge_base..HEAD`, pre-reads every changed file ONCE.
 4. Prints a brief intent summary.
 5. Launches 6 lens subagents in parallel (Sonnet by default, Opus if `--deep`).
@@ -139,7 +139,7 @@ The orchestrator has the diff + file contents in memory from the run, so drill-d
 
 ### "Trunk could not be resolved"
 
-The orchestrator resolves `base=<ref>` → `origin/develop` (default) → `origin/main` / `origin/master` fallbacks. If none resolve, the review aborts. Fix:
+The orchestrator resolves `base=<ref>` → `origin/main` (default) → `origin/develop` / `origin/master` fallbacks. If none resolve, the review aborts. Fix:
 
 ```bash
 # Explicitly set origin/HEAD to your trunk branch
