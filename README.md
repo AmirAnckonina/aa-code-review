@@ -40,7 +40,7 @@ All artifacts use the `aa-` prefix to avoid collision with personal/global skill
 ### Install
 
 ```bash
-git clone <your-fork-url> ~/repositories/aa-code-review
+git clone https://github.com/AmirAnckonina/aa-code-review.git ~/repositories/aa-code-review
 cd ~/repositories/aa-code-review
 ./install.sh
 ```
