@@ -61,9 +61,9 @@ The engine dispatches 3 `Agent` calls with `subagent_type="aa-reviewer"`, `run_i
 
 `reviewer-prompt.md` orders the dispatch prompt: **shared block first** — branch/context, repo rules verbatim, intent, pre-read code, diff, output format, CRITICAL gate — byte-identical across all 3 prompts; **assignment block last** — reviewer name + checklist path. Same agent type + identical prefix ⇒ cache-eligible; combined with 3-not-6 dispatch ≈ ⅓ the input tokens of v1.
 
-### D5 — Single grammar owner
+### D5 — One owner per fact (grammar split by audience)
 
-`report-format.md` owns: finding-line grammar (severity emoji, `<ID>` placeholder, `[<Reviewer>]` tag, optional `[⚠️ Repo rule: <name>]`, `file:line`, title `|` mechanism), reserved tokens, severity tiers + CRITICAL 3-criteria gate, `[CRITICAL]` rule binding/promotion, verdict table, 3-layer report templates, truncation rule. Engine SKILL.md and reviewer-prompt.md **reference** it; neither restates it. This makes the v1 bug 1.1 (two conflicting grammars) structurally impossible.
+Reviewer-facing facts — finding-line grammar (severity emoji, `<ID>` placeholder, `[<Reviewer>]` tag, optional `[⚠️ Repo rule: <name>]`, `file:line`, title `|` mechanism), reserved tokens, severity tiers, CRITICAL 3-criteria gate, the 10-finding cap — live ONLY in `reviewer-prompt.md` (the single dispatch template; reviewers never read a second file for format). Engine-facing facts — `[CRITICAL]` rule promotion, synthesis rules, ID assignment, verdict table, 3-layer report templates, truncation/ordering — live ONLY in `report-format.md`, which points at reviewer-prompt.md for the line grammar it parses. Each fact has exactly one home, so the v1 bug 1.1 (two conflicting grammars) is structurally impossible.
 
 ### D6 — Two adapter seams
 
