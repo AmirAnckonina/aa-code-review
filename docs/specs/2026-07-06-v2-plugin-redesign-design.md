@@ -78,6 +78,13 @@ The engine is adapter-agnostic except at:
 
 `.claude-plugin/plugin.json` manifest; `commands/`, `agents/`, `skills/` auto-discovered. Internal file references use `${CLAUDE_PLUGIN_ROOT}` — no `~/.claude/...` hardcoding (v1 bug 4.1). Install via marketplace/local path; uninstall via plugin remove. `install.sh` and its settings.json permission-merge are deleted; required permissions documented in README.
 
+### D8 — Permissions: least privilege, opt-in, no silent mutation
+
+- The installer's settings.json permission-merge (v1 `install.sh`) is gone and MUST NOT return in any form: the plugin never writes to user/project settings.
+- Enforcement is structural first: `aa-reviewer` has no write tools (D3); the engine's invariants forbid git lifecycle commands; gitignored files (secrets, `.env`) never enter review scope because scope collection honors `--exclude-standard` and the binary/hidden-dir filters.
+- Convenience allowlist is documentation-only (README "Permissions" section): users may opt in to rules scoped strictly to aa artifacts and read-only git — `Skill` for the engine, `Read` of the plugin's own files, and `Bash(git <read-subcommand>:*)` patterns (`diff`, `log`, `status`, `merge-base`, `rev-parse`, `ls-files`, `check-attr`, `symbolic-ref`). Nothing broader (no blanket `Bash`, no `Read(~/**)`).
+- Everything else runs under the user's chosen permission mode and prompts normally.
+
 ## Fold-in of the 2026-07-02 audit
 
 | Audit item | Resolution in v2 |

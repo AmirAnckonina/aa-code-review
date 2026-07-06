@@ -28,6 +28,7 @@
 
 **Files:**
 - Create: `.claude-plugin/plugin.json`
+- Create: `.claude-plugin/marketplace.json` (lets `claude plugin marketplace add <local path>` resolve this repo)
 - Create: `agents/aa-reviewer.md`
 - Delete: `install.sh`, `agents/.gitkeep`
 
@@ -44,6 +45,20 @@
   "version": "2.0.0",
   "description": "Multi-reviewer agentic code review for the current branch's diff. 3 parallel read-only reviewers (Bugs, Security, Quality), repo-specific rules, deterministic verdict, 3-layer report.",
   "author": { "name": "Amir Anckonina" }
+}
+```
+
+- [ ] **Step 1b: Write the marketplace manifest**
+
+`.claude-plugin/marketplace.json`:
+
+```json
+{
+  "name": "aa-tools",
+  "owner": { "name": "Amir Anckonina" },
+  "plugins": [
+    { "name": "aa-code-review", "source": "./", "description": "Multi-reviewer agentic code review" }
+  ]
 }
 ```
 
@@ -531,7 +546,37 @@ claude plugin install aa-code-review
 Uninstall: `claude plugin uninstall aa-code-review`.
 ````
 
-· the three commands (`/aa-review`, `/aa-init-rules` — note: still skill-invoked, `/aa-edit-rules`) · how a review runs (Steps 0–6, one paragraph) · adapter extension pointer to `adapters/README.md`.
+· the three commands (`/aa-review`, `/aa-init-rules` — note: still skill-invoked, `/aa-edit-rules`) · how a review runs (Steps 0–6, one paragraph) · adapter extension pointer to `adapters/README.md` · a **Permissions** section, verbatim:
+
+````markdown
+## Permissions (least privilege)
+
+The plugin never touches your settings files. Enforcement is structural: the `aa-reviewer` agent has no write tools, the engine forbids git lifecycle commands, and gitignored files (e.g. `.env`) never enter review scope.
+
+To avoid permission prompts during a review, you may OPT IN to these narrowly scoped rules in your project's `.claude/settings.json` (or user settings) — aa artifacts and read-only git only:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Skill(aa-code-review:aa-review-engine)",
+      "Skill(aa-code-review:aa-init-rules)",
+      "Skill(aa-code-review:aa-edit-rules)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git status:*)",
+      "Bash(git merge-base:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git ls-files:*)",
+      "Bash(git check-attr:*)",
+      "Bash(git symbolic-ref:*)"
+    ]
+  }
+}
+```
+
+Do not add blanket `Bash` or broad `Read` rules for this plugin — it does not need them.
+````
 
 `CLAUDE.md`: rewrite the runtime-architecture section for v2 (command → engine skill → 3 background `aa-reviewer` dispatches → synthesis → report) and replace the drift table with the v2 ownership map:
 
@@ -606,11 +651,11 @@ git diff main --stat   # expect: app.py, all lines added
 
 ```bash
 claude plugin marketplace add ~/repositories/agentic-code-review/aa-code-review
-claude plugin install aa-code-review
-cd $S && claude   # then: /aa-review base=main
+claude plugin install aa-code-review@aa-tools
+cd $S && claude -p "/aa-review base=main" --verbose 2>&1 | tee review-run.log
 ```
 
-Confirm, from the session transcript:
+Confirm, from `review-run.log`:
 1. Three `Agent` dispatches with `run_in_background` ran concurrently (overlapping, not serial).
 2. Report has a 3-row Reviewer Coverage table, verdict computed per math, Layer 1 ≤ ~30 lines.
 3. The SQL injection is found by Security; empty-list division by Bugs; at least one Quality finding.

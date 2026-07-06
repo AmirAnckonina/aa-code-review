@@ -3,3 +3,4 @@
 
 # Claude Code local (per-user) settings — not shared
 .claude/settings.local.json
+.superpowers/
