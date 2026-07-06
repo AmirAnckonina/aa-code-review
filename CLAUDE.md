@@ -4,48 +4,47 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-A package of Claude-Code-facing prompt artifacts (agents, skills, slash commands) for running code reviews from inside a target service repo. **There is no application code** — every artifact is markdown. The repo distributes itself by symlinking its contents into `~/.claude/`.
+A Claude Code **plugin** (`aa-code-review`, marketplace `aa-tools`) — a package of Claude-Code-facing prompt artifacts (an agent, skills, a slash command) for running code reviews from inside a target service repo. **There is no application code** — every artifact is markdown. The repo distributes itself as a plugin: `claude plugin marketplace add` + `claude plugin install`, not symlinks.
 
 ## Install / contributor loop
 
 ```bash
-./install.sh             # symlinks agents/ skills/ commands/ into ~/.claude/; idempotent
-CLAUDE_HOME=/tmp/x ./install.sh   # dry-run target
+claude plugin marketplace add ~/repositories/agentic-code-review/aa-code-review
+claude plugin install aa-code-review
 ```
 
-Because the install is symlinks, **edits to files in this repo go live in any active Claude Code session immediately — no re-install**. To exercise a change: `cd <target service repo> && claude` then `/aa-review`. There is no build, lint, or test suite.
+Edits to files in a locally-added marketplace path go live in any active Claude Code session with the plugin installed from that path — no reinstall for content changes. Reinstall only if `.claude-plugin/plugin.json`'s manifest (commands/agents/skills list) changes. To exercise a change: `cd <target service repo> && claude` then `/aa-review`. There is no build, lint, or test suite.
 
 ## Runtime architecture (when `/aa-review` fires in a target repo)
 
-1. `commands/aa-review.md` (~25-line thin slash command) parses args and invokes the **`aa-review-orchestrator` skill** via the Skill tool. Default `adapter=local` if not specified.
-2. The skill runs at the **TOP LEVEL** of the user's session (not as a subagent). This is what makes the architecture work — only top-level contexts have access to the `Agent` tool, which is required to dispatch lens subagents in parallel. (An agent-via-Task indirection would fail because subagents cannot spawn other subagents per Claude Code's runtime.)
-3. The skill executes Steps 0–7: reads target repo's `CLAUDE.md`, `.claude/context.md`, `.aa-review/rules.md` (the last is repo-specific rules layered on top of base standards).
-4. Resolves base ref (explicit `base=<ref>` → upstream → `origin/HEAD` → `main`/`develop`/`master` fallbacks), computes merge-base, pre-reads every changed file ONCE.
-5. Launches the 6 lenses (Correctness / Security / Reliability / Design / Perf+Testing / Readability) in a **single Agent message** for parallel execution. Pre-read content is injected into each lens prompt — lenses MUST NOT re-read or re-diff.
-6. Cross-checks pairs, dedupes, assigns `CRT-/IMP-/SUG-` IDs, applies `[CRITICAL]` rule promotion, emits the 3-layer report per the active adapter. Verdict is deterministic from highest severity.
+1. `commands/aa-review.md` (thin slash command) parses `$ARGUMENTS` and invokes the **`aa-review-engine` skill** via the Skill tool, passed verbatim.
+2. The skill runs at the **TOP LEVEL** of the user's session (not as a subagent). This is what makes the architecture work — only top-level contexts have access to the `Agent` tool, which is required to dispatch reviewer subagents in the background. (An agent-via-Task indirection would fail because subagents cannot spawn other subagents per Claude Code's runtime.)
+3. The skill executes Steps 0–6: Step 0 reads target repo's `CLAUDE.md`, `.claude/context.md`, `.aa-review/rules.md` (the last is repo-specific rules layered on top of base standards) and parses args (`--deep`, `base=`, `adapter=`, focus text).
+4. Step 1 resolves the base ref — first that succeeds: explicit `base=<ref>` → `@{upstream}` → `origin/HEAD` → `origin/main`/`develop`/`master` fallbacks — computes the merge-base, collects committed + working-tree + untracked changes (binary and hidden-dir filtered), and pre-reads every surviving file ONCE.
+5. Step 2 prints an intent summary. Step 3 dispatches 3 `aa-reviewer` subagents (Bugs / Security / Quality) via `Agent(..., run_in_background=true)` — concurrent by construction, not a single blocking message. A reviewer that errors or returns no parseable output is retried once; if ≥2 of 3 are still `NOT REVIEWED`, the engine aborts.
+6. Step 4 collects reviewer output. Step 5 synthesizes: systemic clustering, dedupe, `[CRITICAL]`-rule promotion, assigns `CRT-/IMP-/SUG-` IDs, computes the verdict (any 🔴 → BLOCKER; any 🟡 → NEEDS WORK; else SHIP IT). Step 6 emits the 3-layer report per the active adapter (`local` is the only one implemented).
 
-## Source-of-truth map (drift hazards)
-
-These pairs are explicitly coupled — change one without updating the other and the system breaks:
+## Ownership map
 
 | Concern | Authority | Consumers |
 |---|---|---|
-| Report grammar, severity tiers, verdict math, lens list | `skills/aa-review-lenses/SKILL.md` | `skills/aa-review-orchestrator/SKILL.md`, `adapters/local.md` |
-| 13 base coding principles | `skills/aa-coding-standards/SKILL.md` | the 6 lens reference files under `skills/aa-review-lenses/references/` |
-| `.aa-review/rules.md` on-disk shape | `skills/aa-init-rules/references/rule-shape.md` | `aa-init-rules` and `aa-edit-rules` SKILL.md files; lens-prompt injection in `skills/aa-review-orchestrator/SKILL.md` |
-| Slash-command → skill invocation contract | `commands/aa-review.md` | `skills/aa-review-orchestrator/SKILL.md` |
+| Finding-line grammar, severity tiers, 🔴 gate | `skills/aa-review-engine/references/reviewer-prompt.md` | dispatched reviewers; engine Step 4 parser |
+| Report assembly, IDs, verdict, layers, synthesis | `skills/aa-review-engine/references/report-format.md` | engine Steps 5–6; `adapters/local.md` |
+| 13 base principles | `skills/aa-review-engine/references/coding-standards.md` (editing-time) | the 3 reviewer checklists (operational copies) |
+| `.aa-review/rules.md` shape | `skills/aa-init-rules/references/rule-shape.md` | init/edit rules skills; engine Step 0 |
+| Adapter seams | `adapters/README.md` | engine Steps 1 & 6 |
 
 `rule-shape.md` declares its own drift contract at the bottom — read it before touching either rules skill.
 
 ## Conventions specific to this repo
 
-- **`aa-` prefix on every artifact** — agents, skills, commands all live in a shared `~/.claude/` namespace; the prefix prevents collision with personal/global skills (`coding-standards` vs `aa-coding-standards`).
+- **`aa-` prefix on every artifact** — the plugin's commands/agents/skills share a marketplace namespace; the prefix prevents collision with other plugins and personal/global skills.
 - **3 severity tiers only** (🔴 / 🟡 / 🔵). No POSITIVE / ✅ Positive / POS-{n} category — do not reintroduce praise sections.
 - **`[CRITICAL]` is the only severity marker** in `.aa-review/rules.md` rule headings. Rules without it are unmarked — the reviewer infers severity per finding.
 - **Reserved tokens** in the report grammar — rule names and titles must avoid `[`, `]`, `,`, ` — ` (em-dash with spaces), `` ` ``, `|`, `"`. The `|` separator between title and mechanism is single-use per finding line.
-- **Scope = read-only + local.** No git lifecycle commands, no MR/PR posting from the agent. Future remote adapters are deferred (`adapters/github-actions.md`, `adapters/gitlab-ci.md` placeholders).
+- **Scope = read-only + local.** No git lifecycle commands, no MR/PR posting from the agent. Future remote adapters are planned (`github`, `gitlab` — see `adapters/README.md`).
 - **No agent memory.** Persistent learning lives in `<target>/.aa-review/rules.md`. Findings cite either code evidence or a named rule — never internal agent state.
 
 ## Docs
 
-`README.md` at the repo root is the canonical project overview (install, the three slash commands, how a review runs). Start there for usage context.
+`README.md` at the repo root is the canonical project overview (install, the slash command and skill-invoked commands, how a review runs). Start there for usage context.
