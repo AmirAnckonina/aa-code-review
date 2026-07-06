@@ -1,6 +1,6 @@
 # Repo Review Rules — example-service
 
-These rules extend `aa-coding-standards` for this repo. The reviewer applies them with equal severity weight. Where these rules conflict with base standards, these win.
+These rules extend the base coding standards for this repo. The reviewer applies them with equal severity weight. Where these rules conflict with base standards, these win.
 
 > A simple, illustrative example. Each rule has the same four parts: **Pattern** (what good code does), **Anti-pattern** (what to flag), **Why** (one plain reason), and an optional **Example** (good vs. bad). Full format: `skills/aa-init-rules/references/rule-shape.md`. Make your own with `/aa-init-rules`, or copy this file to `<repo>/.aa-review/rules.md`. `[CRITICAL]` means every violation blocks; unmarked rules let the reviewer judge severity per finding.
 
