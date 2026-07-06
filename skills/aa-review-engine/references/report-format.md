@@ -7,9 +7,9 @@ Finding-line grammar, severity tiers, and the CRITICAL gate are owned by reviewe
 ## Severity Levels
 
 > **Severity binding from a cited authority.** When a finding cites a repo rule (`[⚠️ Repo rule: <name>]`):
-> - If the rule heading carries `[CRITICAL]`, the finding is 🔴 CRT. You MUST NOT downgrade. The rule's `[CRITICAL]` marker is the team-lead's pre-declared judgment that violations are unconditional merge blockers — it substitutes for the 3-criteria gate above. (Reviewer-judgment 🔴 findings still owe the 3-criteria articulation; rule-cited 🔴 inherits the rule's authority.)
-> - If the rule is unmarked, infer severity for the *specific* finding using the tier definitions above. The rule's prose is one input among many; the diff context, the codebase scale, the reachability, and the blast radius all factor in. Same rule + different instance = potentially different severity.
-> See `~/.claude/skills/aa-init-rules/references/rule-shape.md` for the rule-file grammar.
+> - If the rule heading carries `[CRITICAL]`, the finding is 🔴 CRT. You MUST NOT downgrade. The rule's `[CRITICAL]` marker is the team-lead's pre-declared judgment that violations are unconditional merge blockers — it substitutes for the 3-criteria gate in `reviewer-prompt.md`. (Reviewer-judgment 🔴 findings still owe the 3-criteria articulation; rule-cited 🔴 inherits the rule's authority.)
+> - If the rule is unmarked, infer severity for the *specific* finding using the tier definitions in `reviewer-prompt.md`. The rule's prose is one input among many; the diff context, the codebase scale, the reachability, and the blast radius all factor in. Same rule + different instance = potentially different severity.
+> See `${CLAUDE_PLUGIN_ROOT}/skills/aa-init-rules/references/rule-shape.md` for the rule-file grammar.
 
 ---
 
