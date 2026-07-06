@@ -670,4 +670,86 @@ cd ~/repositories/agentic-code-review/aa-code-review
 git add docs/plans && git commit -m "docs: record v2 smoke-run results"
 git push -u origin v2-plugin-redesign
 ```
+
+## Verification run — 2026-07-06
+
+**Executor:** Task 8 (end-to-end verification), executed against branch `v2-plugin-redesign`, repo clean at run start.
+
+### Step 1 — Regression greps: PASS
+
 ```
+grep -rn '~/.claude' --include='*.md' . | grep -v docs/specs | grep -v docs/plans   → 0 hits (PASS)
+grep -rniE 'positives|POS-\{?n' --include='*.md' skills/ commands/ agents/ adapters/ → 3 hits, all legitimate
+    - skills/aa-edit-rules/SKILL.md:56  ("too many false positives" — rule-tuning UX copy)
+    - skills/aa-init-rules/SKILL.md:79  ("false positives are preferable to false negatives" — redaction policy)
+    - adapters/local.md:190             ("Suppress known false positives" — capability gap note)
+    None reference the removed POSITIVE/✅ report severity tier. Judgment: not a regression.
+grep -rn 'maxTurns' --include='*.md' . | grep -v docs/                              → 0 hits (PASS)
+jq -e '.name=="aa-code-review" and .version=="2.0.0"' .claude-plugin/plugin.json    → true (PASS)
+```
+
+### Step 2 — Scratch repo build: PASS
+
+Built at `/private/tmp/claude-501/-Users-amiranckonina/c23e135c-1432-418d-984a-b1b95ad8e445/scratchpad/aa-smoke`. `git diff main --stat` on `feature/smoke`:
+
+```
+ app.py | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+```
+
+All three planted violations (SQL injection, ZeroDivisionError, pointless-alias/no-coverage) present in a single fully-added file, as required.
+
+### Step 3 — Install: PASS
+
+```
+claude plugin marketplace add ~/repositories/agentic-code-review/aa-code-review
+  → Successfully added marketplace: aa-tools (declared in user settings)
+claude plugin install aa-code-review@aa-tools
+  → Successfully installed plugin: aa-code-review@aa-tools (scope: user)
+claude plugin list  → aa-code-review@aa-tools, Version 2.0.0, enabled
+claude plugin details aa-code-review@aa-tools
+  → Skills (4): aa-edit-rules, aa-init-rules, aa-review, aa-review-engine
+  → Agents (1): aa-reviewer
+```
+Manifest, marketplace name, component inventory all match spec.
+
+### Step 3 — Live headless run: FAILED (environment/runtime limitation, not a plugin-artifact defect)
+
+Command run per brief (adapted per task notes):
+```
+cd $S && claude -p "/aa-review base=main" --permission-mode bypassPermissions --verbose 2>&1 | tee review-run.log
+```
+
+Result — `review-run.log` in full:
+```
+Unknown command: /aa-review
+EXIT_CODE=0
+```
+
+Reproduced independently two ways before an unrelated environment-wide auth outage (`Failed to authenticate. API Error: 401`, affecting the Bash safety classifier too) blocked further attempts:
+1. Plugin installed via `claude plugin marketplace add` + `claude plugin install aa-code-review@aa-tools` → `/aa-review` unrecognized in `-p` mode.
+2. Plugin loaded via `claude --plugin-dir ~/repositories/agentic-code-review/aa-code-review -p "/aa-review base=main" ...` (bypassing the marketplace-install path entirely) → same `Unknown command: /aa-review`.
+
+Control checks to isolate scope of the failure:
+- `claude -p "/compact"` (built-in slash command) → recognized and executed correctly ("Not enough messages to compact."). So `-p` mode's slash-command dispatch works in general.
+- `claude -p "/help"` → "isn't available in this environment" (built-in help also restricted in print mode).
+- `~/.claude/settings.json` correctly shows `"enabledPlugins": {"aa-code-review@aa-tools": true}` and `extraKnownMarketplaces.aa-tools` pointing at the repo path — the plugin *is* registered at the config level consumed by both interactive and print mode.
+- Plugin cache confirms the command file is installed: `~/.claude/plugins/cache/aa-tools/aa-code-review/2.0.0/commands/aa-review.md` present and correct (thin relay to `aa-review-engine` skill, matches repo source verbatim).
+
+Diagnosis: plugin-provided slash commands (as opposed to built-in ones) are not being resolved by `claude -p`'s command dispatcher in this environment/version, independent of install method. This blocked observation of all four of the brief's live-run confirmation checks.
+
+Brief's 4 confirmation checks — outcomes:
+1. Three `Agent` dispatches with `run_in_background` ran concurrently — **NOT OBSERVABLE** (command never started; no engine execution occurred).
+2. Report has 3-row Reviewer Coverage table, verdict computed, Layer 1 ≤ ~30 lines — **NOT OBSERVABLE** (no report was generated).
+3. SQL injection found by Security; empty-list division by Bugs; ≥1 Quality finding — **NOT OBSERVABLE** (no reviewers ran).
+4. `expand CRT-1` / `show Security` work from collected data (no re-reads) — **NOT OBSERVABLE** (no findings collected).
+
+Scope note: this is a headless/`-p`-mode-specific finding. The command file, skill relay, and dispatch logic were not exercised and remain unverified end-to-end in this session; nothing here demonstrates a defect in the plugin's own artifacts (command/skill/agent markdown) — the `--plugin-dir` control ruled out an install-path cause. An interactive-session run (`claude` then typing `/aa-review base=main` inside the scratch repo) was not attempted per the task's `-p`-only instructions and would be the natural next check to isolate print-mode vs. general plugin-command dispatch.
+
+### Cleanup
+
+Plugin left installed (`aa-code-review@aa-tools`, user scope) and marketplace left registered (`aa-tools` → local repo path) — no `claude plugin uninstall` / marketplace-remove was run, since the auth outage made it unsafe to assume further `claude` CLI calls would succeed/rollback cleanly; residue is limited to `~/.claude/settings.json` entries and the plugin cache under `~/.claude/plugins/cache/aa-tools/`, both inert (no side effects on other projects).
+
+### Overall verdict
+
+DONE_WITH_CONCERNS. Steps 1–2 and the install portion of Step 3 pass cleanly. The live headless run did not execute the review engine at all — `/aa-review` is not recognized by `claude -p`, reproduced via two independent loading paths. This is reported as a live-run finding per task instructions (no artifact fix attempted). Recommend a follow-up interactive-mode smoke run to confirm whether this is `-p`-mode-specific (most likely, given `/compact` and `/help` are also print-mode-restricted) or a deeper plugin-command registration issue.
