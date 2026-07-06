@@ -7,7 +7,7 @@ All ops share these invariants:
 - **Read → Edit, never Write.** Preserve every untouched byte of the file.
 - **Show a unified diff before any write.** Require explicit confirm.
 - **After write, print the recovery-affordance line:** *"Recover with `git checkout HEAD -- .aa-review/rules.md` if needed."*
-- **Conform to `rule-shape.md`.** Load the canonical shape from `~/.claude/skills/aa-init-rules/references/rule-shape.md` and enforce every field rule on the produced output.
+- **Conform to `rule-shape.md`.** Load the canonical shape from `${CLAUDE_PLUGIN_ROOT}/skills/aa-init-rules/references/rule-shape.md` and enforce every field rule on the produced output.
 
 ## Op: `add`
 
@@ -95,9 +95,9 @@ Do not proceed even on user pressure. Direct the user back to `add` + `tighten-p
 
 ## Cross-skill dependency failure
 
-If reading `~/.claude/skills/aa-init-rules/references/rule-shape.md` fails (file not found, permission denied), emit:
+If reading `${CLAUDE_PLUGIN_ROOT}/skills/aa-init-rules/references/rule-shape.md` fails (file not found, permission denied), emit:
 
-> *"`rule-shape.md` not found at `~/.claude/skills/aa-init-rules/references/rule-shape.md`. Re-run `aa-code-review/install.sh` to repair the symlinks."*
+> *"`rule-shape.md` not found at `${CLAUDE_PLUGIN_ROOT}/skills/aa-init-rules/references/rule-shape.md`. Re-run `aa-code-review/install.sh` to repair the symlinks."*
 
 And exit. Do not proceed without the shape contract.
 

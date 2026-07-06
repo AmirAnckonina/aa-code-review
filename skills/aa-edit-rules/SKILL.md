@@ -37,14 +37,6 @@ Run these checks in order. On any failure, print the literal refusal message and
 
    > *"Rename and remove are deferred for now (citation-breakage risk). Workaround: `add` a replacement rule with the corrected behavior, then `refine` the old rule's `**Pattern:**` so it never matches (effectively a no-op). The old rule stays citeable for any historical findings while new findings cite the replacement."*
 
-6. **Cross-skill dependency — `rule-shape.md`.** Read `~/.claude/skills/aa-init-rules/references/rule-shape.md`. If the read fails, refuse with:
-
-   > *"`rule-shape.md` not found at `~/.claude/skills/aa-init-rules/references/rule-shape.md`. Re-run `aa-code-review/install.sh` to repair the symlinks."*
-
-7. **Cross-skill dependency — `edit-operations.md`.** Read `~/.claude/skills/aa-edit-rules/references/edit-operations.md`. If the read fails, refuse with:
-
-   > *"`edit-operations.md` not found at `~/.claude/skills/aa-edit-rules/references/edit-operations.md`. Re-run `aa-code-review/install.sh` to repair the symlinks."*
-
 ## Op dispatch
 
 **Natural language is fine.** Parse the user's request into three slots:
@@ -53,7 +45,7 @@ Run these checks in order. On any failure, print the literal refusal message and
 2. **Rule name** (refine only) — extract the named rule from anywhere in the sentence. Fuzzy match against existing rule headings in `<REPO_ROOT>/.aa-review/rules.md` (case-insensitive substring). If multiple match, list them and ask the user to disambiguate.
 3. **Dimension** (refine only) — `pattern`, `anti-pattern`, `why`, `example`, or `critical` (severity marker). Infer when possible from intent words like "strict" / "loose" / "rationale" / "show an example" / "promote to critical". If ambiguous, ask: *"Which dimension — pattern, anti-pattern, why, example, or critical marker?"*
 
-`edit-operations.md` (loaded in Step 0 check 7) is the operating manual for each matched op — once dispatch is resolved, follow its sub-flow.
+`references/edit-operations.md` is the operating manual for each matched op — once dispatch is resolved, load it and follow its sub-flow.
 
 ### Common phrasings → ops (illustrative, not exhaustive)
 
