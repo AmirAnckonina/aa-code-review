@@ -2,9 +2,9 @@
 
 Charter: Correctness & Reliability — logic, edge cases, null safety, error handling, failure modes, operations. Apply every check below against the changed lines.
 A check is "clean" only if you looked and found nothing — silence is not clearance.
-(Merged from the v1 correctness-lens, reliability-lens lenses; no checks dropped.)
+(Merged from the v1 correctness and reliability lenses; no checks dropped.)
 
-## Checklist
+## Checklist — Correctness & Logic
 
 ### Logic Errors
 - [ ] Walk through code paths with concrete values — pick boundary values (0, -1, max, empty, null) and mentally execute
@@ -34,7 +34,7 @@ A check is "clean" only if you looked and found nothing — silence is not clear
 - [ ] Are there code paths that contradict the stated intent?
 - [ ] Are there missing code paths that the intent implies should exist?
 
-## Checklist
+## Checklist — Reliability & Operations
 
 ### Error Handling
 - [ ] Errors caught at appropriate levels — never swallowed silently

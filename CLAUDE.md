@@ -10,7 +10,7 @@ A Claude Code **plugin** (`aa-code-review`, marketplace `aa-tools`) — a packag
 
 ```bash
 claude plugin marketplace add ~/repositories/agentic-code-review/aa-code-review
-claude plugin install aa-code-review
+claude plugin install aa-code-review@aa-tools
 ```
 
 Edits to files in a locally-added marketplace path go live in any active Claude Code session with the plugin installed from that path — no reinstall for content changes. Reinstall only if `.claude-plugin/plugin.json`'s manifest (commands/agents/skills list) changes. To exercise a change: `cd <target service repo> && claude` then `/aa-review`. There is no build, lint, or test suite.

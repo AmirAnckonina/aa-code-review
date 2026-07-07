@@ -2,7 +2,7 @@
 
 Charter: Security & Input Safety — injection, authz/authn, secrets, boundary validation. Apply every check below against the changed lines.
 A check is "clean" only if you looked and found nothing — silence is not clearance.
-(Merged from the v1 security-lens lenses; no checks dropped.)
+(Merged from the v1 security lens; no checks dropped.)
 
 ## Checklist
 

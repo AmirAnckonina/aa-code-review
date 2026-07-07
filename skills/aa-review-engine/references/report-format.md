@@ -125,10 +125,6 @@ When the user issues `show <Reviewer>` (case-insensitive prefix or substring mat
 
 Ambiguous match → *"Reviewer '<query>' is ambiguous. Candidates: <list>. Use the full canonical name."*
 
-### Activity Summary
-> [e.g., "Pre-read 12 changed files. Launched 3 Sonnet reviewers. Collected 14 findings, deduplicated to 11."]
-```
-
 ---
 
 ## Synthesis (engine, post-collection)

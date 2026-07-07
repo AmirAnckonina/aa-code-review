@@ -2,9 +2,9 @@
 
 Charter: Design, Performance & Testing, Readability — SOLID, encapsulation, interfaces, test coverage, performance, naming, comments, consistency. Apply every check below against the changed lines.
 A check is "clean" only if you looked and found nothing — silence is not clearance.
-(Merged from the v1 design-lens, perf-testing-lens, readability-lens lenses; no checks dropped.)
+(Merged from the v1 design, performance-testing, and readability lenses; no checks dropped.)
 
-## Checklist
+## Checklist — Design & Structure
 
 ### SOLID & Simplicity
 - [ ] Single responsibility: each class/function does exactly one thing
@@ -41,7 +41,7 @@ A check is "clean" only if you looked and found nothing — silence is not clear
 - [ ] Module boundaries respected — no reaching across layers
 - [ ] Could this be simpler? Challenge the complexity.
 
-## Checklist
+## Checklist — Performance & Testing
 
 ### Test Coverage
 - [ ] All public methods/endpoints covered by tests
@@ -76,7 +76,7 @@ A check is "clean" only if you looked and found nothing — silence is not clear
 - [ ] Feature flags for risky changes?
 - [ ] New dependencies impact startup time or memory footprint?
 
-## Checklist
+## Checklist — Readability & Conventions
 
 ### Naming
 - [ ] Names (variables, functions, classes) are self-documenting

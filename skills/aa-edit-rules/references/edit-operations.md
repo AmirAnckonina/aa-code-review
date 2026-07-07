@@ -97,7 +97,7 @@ Do not proceed even on user pressure. Direct the user back to `add` + `tighten-p
 
 If reading `${CLAUDE_PLUGIN_ROOT}/skills/aa-init-rules/references/rule-shape.md` fails (file not found, permission denied), emit:
 
-> *"`rule-shape.md` not found at `${CLAUDE_PLUGIN_ROOT}/skills/aa-init-rules/references/rule-shape.md`. Re-run `aa-code-review/install.sh` to repair the symlinks."*
+> *"`rule-shape.md` not found at `${CLAUDE_PLUGIN_ROOT}/skills/aa-init-rules/references/rule-shape.md`. Reinstall the plugin: `claude plugin install aa-code-review@aa-tools`."*
 
 And exit. Do not proceed without the shape contract.
 

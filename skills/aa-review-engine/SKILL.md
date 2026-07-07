@@ -42,6 +42,7 @@ Then collect, with `MERGE_BASE=$(git merge-base HEAD "$BASE_REF")`:
 - **binary filter:** drop files with `-` in `git diff --numstat` columns; drop untracked matching `git check-attr binary` or extension deny-list (`.png .jpg .jpeg .gif .pdf .zip .tar .gz .ico .woff .woff2 .ttf .eot .so .dylib .dll .exe .class .jar .wasm`)
 - **hidden-dir filter:** drop any path with a dot-directory segment (`.claude/`, `.github/`, …). Top-level dot-FILES (`.gitignore`, `.editorconfig`) stay in scope.
 - pre-read every surviving file once (HEAD content for `committed`, working-tree for `working`/`untracked`)
+- capture the dispatch-fill values now: `BRANCH` (`git branch --show-current`), `MERGE_BASE_SHORT` (first 7 chars of the merge-base), `FILE_LIST` (the tagged file list), `CLAUDE_MD_SECTIONS` (relevant conventions from the Step 0 reads), `PRE_READ_CODE`, `DIFF` — these plus `REPO_RULES` fill every reviewer-prompt slot in Step 3
 
 Empty scope after filtering → stop: report the three bucket counts so the user sees why.
 

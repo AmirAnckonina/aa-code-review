@@ -30,7 +30,7 @@
 ```bash
 # from a local clone (development)
 claude plugin marketplace add ~/repositories/agentic-code-review/aa-code-review
-claude plugin install aa-code-review
+claude plugin install aa-code-review@aa-tools
 
 # or once published, from the marketplace entry for AmirAnckonina/aa-code-review
 ```
