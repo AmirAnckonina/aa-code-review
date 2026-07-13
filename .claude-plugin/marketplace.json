@@ -1,0 +1,7 @@
+{
+  "name": "aa-tools",
+  "owner": { "name": "Amir Anckonina" },
+  "plugins": [
+    { "name": "aa-code-review", "source": "./", "description": "Multi-reviewer agentic code review" }
+  ]
+}

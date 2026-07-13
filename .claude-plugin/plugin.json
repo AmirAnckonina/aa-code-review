@@ -1,0 +1,6 @@
+{
+  "name": "aa-code-review",
+  "version": "2.0.0",
+  "description": "Multi-reviewer agentic code review for the current branch's diff. 3 parallel read-only reviewers (Bugs, Security, Quality), repo-specific rules, deterministic verdict, 3-layer report.",
+  "author": { "name": "Amir Anckonina" }
+}

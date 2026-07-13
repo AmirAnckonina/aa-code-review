@@ -1,10 +1,8 @@
-# Lens 2 — Security & Input Safety
+# Security reviewer checklist
 
-**Focus:** Dedicated security analysis — too important to dilute in a general pass.
-
-**Principles covered:** From `aa-coding-standards` #9 Security, #3 Null & Empty Safety (boundary validation)
-
----
+Charter: Security & Input Safety — injection, authz/authn, secrets, boundary validation. Apply every check below against the changed lines.
+A check is "clean" only if you looked and found nothing — silence is not clearance.
+(Merged from the v1 security lens; no checks dropped.)
 
 ## Checklist
 

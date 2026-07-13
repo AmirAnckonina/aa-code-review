@@ -6,7 +6,7 @@ description: |
   an evidence brief, then runs an author interview to surface tribal
   knowledge, past incidents, and team conventions. Merges both into a topic
   menu, then drafts and writes rules in the canonical shape consumed by the
-  aa-review-orchestrator skill at Step 0. Use when: "/aa-init-rules", "bootstrap repo
+  aa-review-engine skill at Step 0. Use when: "/aa-init-rules", "bootstrap repo
   rules", "audit this repo for review rules", "create .aa-review/rules.md".
   Use only when the rules file does NOT already exist.
 user-invocable: true
@@ -14,7 +14,7 @@ user-invocable: true
 
 # aa-init-rules — Bootstrap `<repo>/.aa-review/rules.md`
 
-You are the **aa-init-rules** skill. You author a fresh `.aa-review/rules.md` file for the repo the user is working in. The file is consumed by the **aa-review-orchestrator** skill at its Step 0 and injected verbatim into all 6 lens prompts.
+You are the **aa-init-rules** skill. You author a fresh `.aa-review/rules.md` file for the repo the user is working in. The file is consumed by the **aa-review-engine** skill at its Step 0 and injected verbatim into all 3 reviewer prompts.
 
 **You MUST use your tools to read files, run commands, and produce the file. Never describe what you would do — do it. A turn with 0 tool uses is a failed turn.**
 
@@ -94,7 +94,7 @@ Probe candidates:   <comma-separated topics inferred>
 
 ## Phase 2 — Author interview + topic menu
 
-Run the strategic interview defined in `~/.claude/skills/aa-init-rules/references/interview-questions.md`. **Read it once before asking any question**; it carries the exact prompt wording, stack-tailored example sets, output contract, and merge-and-dedupe rule.
+Run the strategic interview defined in `references/interview-questions.md`. **Read it once before asking any question**; it carries the exact prompt wording, stack-tailored example sets, output contract, and merge-and-dedupe rule.
 
 ### Flow (one question at a time — NO batching)
 
@@ -141,7 +141,7 @@ If the author picks zero topics, exit with: *"No topics selected — `.aa-review
 
 ## Phase 3 — Per-rule drafting loop
 
-For each picked topic, drill into the canonical rule shape defined in `~/.claude/skills/aa-init-rules/references/rule-shape.md`.
+For each picked topic, drill into the canonical rule shape defined in `references/rule-shape.md`.
 
 ### Per-rule procedure
 
@@ -168,7 +168,7 @@ For each picked topic, drill into the canonical rule shape defined in `~/.claude
 
 ### Severity warning
 
-Unmarked is the expected default — do NOT warn when the author omits `[CRITICAL]`. The reviewer will infer severity per finding using the tier definitions in `aa-review-lenses/SKILL.md`. That is the intended behavior, not a gap.
+Unmarked is the expected default — do NOT warn when the author omits `[CRITICAL]`. The reviewer will infer severity per finding using the tier definitions in `aa-review-engine`'s `references/reviewer-prompt.md`. That is the intended behavior, not a gap.
 
 Warn only in the reverse direction: if the author proposes `[CRITICAL]` for a rule whose **Why** body does not describe an unconditional security / data-integrity / outage / deploy-blocking class — or contains hedging like "usually", "in most cases", "except for" — surface:
 
@@ -184,7 +184,7 @@ When the author says stop:
 2. Compose the final file content:
    - First line: `# Repo Review Rules — <repo name>`
    - One blank line.
-   - One-line intro: `These rules extend aa-coding-standards for this repo. The reviewer applies them with equal severity weight. Where these rules conflict with base standards, these win.`
+   - One-line intro: `These rules extend the base coding standards (see the engine's references/coding-standards.md) for this repo. The reviewer applies them with equal severity weight. Where these rules conflict with base standards, these win.`
    - One blank line.
    - Rules in the order they were drafted, separated by exactly one blank line.
 3. Show the unified diff of the new file against `/dev/null`.

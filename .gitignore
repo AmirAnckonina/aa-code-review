@@ -3,3 +3,10 @@
 
 # Claude Code local (per-user) settings — not shared
 .claude/settings.local.json
+
+# Superpowers (SDD / executing-plans) per-run build scratch & audit state — local only
+.superpowers/
+
+# Docs: ignore everything under docs/ except the official/ subfolder
+docs/*
+!docs/official/

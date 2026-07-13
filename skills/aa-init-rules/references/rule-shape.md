@@ -21,13 +21,13 @@ The author never types `[CRITICAL]` directly. `aa-init-rules` and `aa-edit-rules
 > *"Does every violation of this rule block production?"*
 
 - **Yes** → skill appends `[CRITICAL]` to the heading. Every future violation is 🔴 CRT regardless of context.
-- **No** → skill leaves the heading bare. The reviewer infers severity per finding using the tier definitions in `aa-review-lenses/SKILL.md`:
+- **No** → skill leaves the heading bare. The reviewer infers severity per finding using the tier definitions in `aa-review-engine`'s `references/reviewer-prompt.md`:
 
-| Tier | When the lens declares it |
+| Tier | When the reviewer declares it |
 |---|---|
-| 🔴 CRITICAL | Pinned by the rule's `[CRITICAL]` marker, OR the lens determines the specific violation causes data loss / breach / outage / wrong data. |
-| 🟡 IMPORTANT | Lens determines the specific violation is real risk but recoverable pre-merge. |
-| 🔵 SUGGESTION | Lens determines the specific violation is convention / style / hygiene. |
+| 🔴 CRITICAL | Pinned by the rule's `[CRITICAL]` marker, OR the reviewer determines the specific violation causes data loss / breach / outage / wrong data. |
+| 🟡 IMPORTANT | Reviewer determines the specific violation is real risk but recoverable pre-merge. |
+| 🔵 SUGGESTION | Reviewer determines the specific violation is convention / style / hygiene. |
 
 If the author hesitates on the question — *"usually critical but sometimes OK"*, *"depends"* — the answer is **no**, leave it unmarked.
 
@@ -43,15 +43,15 @@ If the author hesitates on the question — *"usually critical but sometimes OK"
 - **Case-sensitive.** The reviewer cites the name verbatim in `[⚠️ Repo rule: <name>]` finding tags; any case drift breaks citation matching.
 - **Renames are deferred** (see `aa-edit-rules` Out of scope) — pick the name carefully on first authorship.
 
-**Why these characters are forbidden:** the reviewer's report grammar in `skills/aa-review-orchestrator/SKILL.md` (subagent prompt template + report-format token rules) uses `[` and `]` as citation-tag delimiters; `,` as the multi-cite separator (`[⚠️ Repo rule: <name>, also <name2>]`); ` — ` (em-dash with spaces) as the metadata/location/prose separator; backtick and pipe break Markdown rendering of the report.
+**Why these characters are forbidden:** the reviewer's report grammar in `skills/aa-review-engine/references/reviewer-prompt.md` and `references/report-format.md` (subagent prompt template + report-format token rules) uses `[` and `]` as citation-tag delimiters; ` — ` (em-dash with spaces) as the metadata/location/prose separator; backtick and pipe break Markdown rendering of the report. Commas stay reserved in rule names so the rule-cite tag remains unambiguous to parse.
 
 ### `[CRITICAL]` — OPTIONAL
 
 A single literal token, case-sensitive. Append after the rule name with at least one space. Applied by the skill after the hard question — authors do not type this directly.
 
-The reviewer binds severity per `skills/aa-review-orchestrator/SKILL.md` (report emission):
+The reviewer binds severity per `skills/aa-review-engine/references/report-format.md` (report emission):
 
-> *"A finding citing a `[CRITICAL]`-tagged rule is 🔴 CRT. For a finding citing an unmarked rule, infer severity per finding from the tier definitions in `aa-review-lenses/SKILL.md`."*
+> *"A finding citing a `[CRITICAL]`-tagged rule is 🔴 CRT. For a finding citing an unmarked rule, infer severity per finding from the tier definitions in `references/reviewer-prompt.md`."*
 
 ### `**Pattern:**` — REQUIRED
 
@@ -76,7 +76,7 @@ The skill refuses to finalize a rule that violates any cap. The author is offere
 Caps exist for two reasons:
 
 1. **Consumer file cap.** The reviewer truncates `.aa-review/rules.md` at 10 KB (`r6-customization-design.md` Failure Modes). Per-field caps keep the cumulative size in check.
-2. **Prompt-injection blast radius.** The whole file is injected verbatim into all 6 lens prompts. Tighter bodies = smaller surface for adversarial Markdown.
+2. **Prompt-injection blast radius.** The whole file is injected verbatim into all 3 reviewer prompts. Tighter bodies = smaller surface for adversarial Markdown.
 
 ## Worked examples
 

@@ -1,12 +1,40 @@
-# Lens 3 — Reliability & Operations
+# Bugs reviewer checklist
 
-**Focus:** What happens when things go wrong — and can you see it happening.
+Charter: Correctness & Reliability — logic, edge cases, null safety, error handling, failure modes, operations. Apply every check below against the changed lines.
+A check is "clean" only if you looked and found nothing — silence is not clearance.
+(Merged from the v1 correctness and reliability lenses; no checks dropped.)
 
-**Principles covered:** From `aa-coding-standards` #4 Error Handling, #11 Logging & Observability, #2 Edge Cases (failure scenarios)
+## Checklist — Correctness & Logic
 
----
+### Logic Errors
+- [ ] Walk through code paths with concrete values — pick boundary values (0, -1, max, empty, null) and mentally execute
+- [ ] Challenge every conditional: what happens in the else? Are compound conditions correct under all combinations?
+- [ ] Follow data from entry to exit — where can it be null/empty/malformed that the code doesn't check?
+- [ ] Are transformations lossy? Data type conversions that lose precision or truncate?
+- [ ] Off-by-one errors in loops, slices, ranges, pagination
 
-## Checklist
+### Data Flow
+- [ ] Can variables reach a state the code doesn't handle?
+- [ ] Are return values from called functions checked before use?
+- [ ] Does the code correctly distinguish between "absent" and "present but empty"?
+- [ ] Optional/Maybe types used instead of returning null where the language supports it
+
+### State & Side Effects
+- [ ] Can the code reach an inconsistent state? What if a step fails midway?
+- [ ] Does any function modify state beyond its return value? Are callers aware?
+- [ ] Concurrent/race conditions — shared mutable state? Are operations atomic that need to be?
+
+### Boundary Values
+- [ ] Boundary values handled: max, min, zero, negative, empty, single element, overflow
+- [ ] Unexpected input shapes: wrong type, extra fields, truncated data
+- [ ] Timeout and retry scenarios — what happens at the boundary of max retries?
+
+### Intent vs. Implementation
+- [ ] Does the code actually do what the MR description/intent says it does?
+- [ ] Are there code paths that contradict the stated intent?
+- [ ] Are there missing code paths that the intent implies should exist?
+
+## Checklist — Reliability & Operations
 
 ### Error Handling
 - [ ] Errors caught at appropriate levels — never swallowed silently

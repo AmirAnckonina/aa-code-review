@@ -1,8 +1,7 @@
----
-name: aa-coding-standards
-description: "Code quality principles for writing and reviewing code. 13 standards covering error handling, testing, security, performance, null safety, and more. Use when writing code, reviewing code, or checking quality. Loaded by the aa-review-orchestrator skill (via the 6 lenses)."
-user-invocable: false
----
+# Coding standards — 13 base principles (editing-time reference)
+
+> Not loaded at review runtime. The three reviewer checklists (`bugs.md`, `security.md`, `quality.md`) are the operational copies of these principles. When editing a principle here, port the change into the affected checklist — and vice versa.
+> Hard numeric caps below (file/function length, coverage %) are DEFAULTS — a repo's `.aa-review/rules.md` overrides them.
 
 ## Coding Standards
 
