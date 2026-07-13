@@ -2,6 +2,7 @@
 
 Charter: Design, Performance & Testing, Readability — SOLID, encapsulation, interfaces, test coverage, performance, naming, comments, consistency. Apply every check below against the changed lines.
 A check is "clean" only if you looked and found nothing — silence is not clearance.
+Priority under this reviewer's wide charter: complete the Design & Structure and Performance & Testing passes before spending finding budget on Readability & Conventions nits — depth on the high-value axes first.
 (Merged from the v1 design, performance-testing, and readability lenses; no checks dropped.)
 
 ## Checklist — Design & Structure

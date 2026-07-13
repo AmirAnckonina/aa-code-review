@@ -10,6 +10,22 @@
 
 ---
 
+## The three reviewers
+
+**Mechanism.** The engine pre-reads the diff once, then dispatches all three reviewers as **independent background subagents** against that same snapshot — no shared state, so none of them can anchor on another's conclusions. Each receives only its own charter and checklist (plus any repo-specific rules from `.aa-review/rules.md`), reviews **only the changed lines**, and returns findings that cite either code evidence or a named rule — never internal state. The engine then reconciles the three streams: a defect caught by two reviewers is **deduped** (highest severity wins, mechanisms merged), and 3+ related findings collapse into one **systemic** finding. The overlap is deliberate — it's how a bug that is *also* a security hole gets caught from both angles and reconciled, rather than slipping through a seam.
+
+Each reviewer applies its own checklist (`skills/aa-review-engine/references/{bugs,security,quality}.md`):
+
+| Reviewer | Charter | What it examines |
+|---|---|---|
+| **Bugs** | Correctness & Reliability | Logic errors, edge cases and off-by-ones, null / undefined safety, error handling and propagation, failure modes, resource and lifecycle handling, and operational concerns (retries, timeouts, idempotency). Sub-checklists: *Correctness & Logic*, *Reliability & Operations*. |
+| **Security** | Security & Input Safety | Injection (SQL / command / path / template), authentication and authorization gaps, secret handling and leakage, input and boundary validation, unsafe deserialization, and trust-boundary crossings. |
+| **Quality** | Design, Performance & Testing, Readability | SOLID and encapsulation, interface and API design, performance (algorithmic complexity, hot paths, allocations, N+1), test coverage and test quality, naming, comments, and consistency with repo conventions. Sub-checklists: *Design & Structure*, *Performance & Testing*, *Readability & Conventions*. |
+
+These three group the six v1 lenses (Correctness, Reliability, Security, Design, Performance+Testing, Readability) into coherent charters — *does it break* / *is it exploitable* / *is it healthy* — which sharpens each reviewer's focus and cuts the cross-reviewer dedup surface. Every original check is preserved; nothing was dropped in the merge. Findings are capped at 10 per reviewer, severity-first (the lowest-severity items are dropped first if the cap is hit).
+
+---
+
 ## What's in here
 
 | Path | Purpose |
