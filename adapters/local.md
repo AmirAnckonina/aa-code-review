@@ -13,7 +13,7 @@ Before first use, in this order:
 | # | Requirement | How to verify |
 |---|---|---|
 | 1 | Claude Code installed | `claude --version` |
-| 2 | `aa-code-review` plugin installed | `claude plugin list` shows `aa-code-review` |
+| 2 | `aa-code-review` plugin installed | `claude plugin list` shows `aa-code-review@aa-tools` |
 | 3 | Target repo is a git repo with a defined trunk | `git symbolic-ref refs/remotes/origin/HEAD` resolves cleanly |
 | 4 | Current branch has commits ahead of trunk | `git log --oneline $(git merge-base HEAD @{upstream})..HEAD` shows ≥1 commit |
 | 5 | Repo has a `CLAUDE.md` at root (recommended, not required) | `cat CLAUDE.md` |
@@ -28,7 +28,7 @@ If #5 or #6 are missing, `/aa-review` skips them silently — they're optional c
 ```bash
 # from a local clone (development)
 claude plugin marketplace add ~/repositories/agentic-code-review/aa-code-review
-claude plugin install aa-code-review
+claude plugin install aa-code-review@aa-tools
 
 # or once published, from the marketplace entry for AmirAnckonina/aa-code-review
 ```

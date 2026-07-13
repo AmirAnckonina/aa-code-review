@@ -15,7 +15,7 @@
 | Path | Purpose |
 |---|---|
 | `skills/aa-review-engine/` | **The engine.** Runs at top level when invoked by `/aa-review`. Loads context, resolves the base ref, pre-reads changed files, dispatches 3 `aa-reviewer` subagents in the background, synthesizes their findings, emits the report. Skill-not-agent on purpose — only top-level contexts can dispatch subagents in Claude Code. |
-| `agents/aa-reviewer.md` | The reviewer subagent charter — read-only, no write tools. Dispatched three times per run (Bugs / Security / Quality), each with a different checklist. |
+| `agents/aa-reviewer.md` | The reviewer subagent charter — read-only tools only (`Read`, `Grep`, `Glob`; no `Bash`). Dispatched three times per run (Bugs / Security / Quality), each with a different checklist. |
 | `skills/aa-init-rules/` | `/aa-init-rules` — bootstrap `<repo>/.aa-review/rules.md` via an audit + author interview. |
 | `skills/aa-edit-rules/` | `/aa-edit-rules` — natural-language add / refine of an existing `.aa-review/rules.md`. |
 | `commands/aa-review.md` | `/aa-review` slash command — thin relay that invokes the engine skill. |
@@ -86,7 +86,7 @@ The engine touches only two seams: context source (Step 1) and report sink (Step
 
 ## Permissions (least privilege)
 
-The plugin never touches your settings files. Enforcement is structural: the `aa-reviewer` agent has no write tools, the engine forbids git lifecycle commands, and gitignored files (e.g. `.env`) never enter review scope.
+The plugin never touches your settings files. Enforcement is structural: the `aa-reviewer` agent is granted only read-only tools (`Read`, `Grep`, `Glob` — no `Bash`, no `Edit`/`Write`), so it physically cannot run shell commands or mutate the repo; the engine forbids git lifecycle commands; and gitignored files (e.g. `.env`) never enter review scope.
 
 To avoid permission prompts during a review, you may OPT IN to these narrowly scoped rules in your project's `.claude/settings.json` (or user settings) — aa artifacts and read-only git only:
 

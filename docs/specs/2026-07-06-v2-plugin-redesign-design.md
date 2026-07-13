@@ -21,7 +21,7 @@ Out of scope: the feedback skill (dropped for good), remote adapters' implementa
 aa-code-review/
 ├── .claude-plugin/plugin.json     ← plugin manifest (replaces install.sh symlinks)
 ├── commands/aa-review.md          ← thin: relay args → engine skill
-├── agents/aa-reviewer.md          ← dedicated READ-ONLY reviewer agent (tools: Read, Grep, Glob, Bash)
+├── agents/aa-reviewer.md          ← dedicated READ-ONLY reviewer agent (tools: Read, Grep, Glob)
 ├── skills/
 │   ├── aa-review-engine/          ← renamed from aa-review-orchestrator
 │   │   ├── SKILL.md               ← Steps 0–6, adapter-agnostic core
@@ -55,7 +55,7 @@ The engine dispatches 3 `Agent` calls with `subagent_type="aa-reviewer"`, `run_i
 
 ### D3 — Read-only enforced by tool list
 
-`agents/aa-reviewer.md` declares `tools: Read, Grep, Glob, Bash` (no Edit/Write/NotebookEdit/Agent). Bash guidance restricts to read-only commands (grep/rg/git read ops). The prose boundaries remain as backup, but the tool list is the enforcement.
+`agents/aa-reviewer.md` declares `tools: Read, Grep, Glob` (no Bash, no Edit/Write/NotebookEdit/Agent). With Bash removed the tool list is the enforcement outright — the agent physically cannot run shell commands, mutate files, or reach the network, so no prose backstop is load-bearing. File-based context (imports, callers, related modules) comes from Read/Grep/Glob; git-history inspection is intentionally out of scope, the deliberate cost of a structural least-privilege guarantee that adversarial target-repo content cannot subvert.
 
 ### D4 — Prompt-cache-friendly template
 
